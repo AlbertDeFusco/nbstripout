@@ -325,9 +325,9 @@ def main():
         file to add the filter to (in combination with --install/--uninstall),
         defaults to .git/info/attributes""")
     parser.add_argument('--set-kernel-version', default=None, type=int,
-                        help='Set the Python version in the kernelsepc metadata')
+                        help='Set the Python version in the kernelspec metadata')
     parser.add_argument('--no-kernelspec', action='store_true',
-                        help='Remove the kernelsepc metadata')
+                        help='Remove the kernelspec metadata')
     task.add_argument('--version', action='store_true',
                       help='Print version')
     parser.add_argument('--force', '-f', action='store_true',
