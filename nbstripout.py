@@ -191,9 +191,18 @@ def strip_output(nb, keep_output, keep_count):
 def set_kernelspec(nb, python_version=3):
     kernelspec = nb.get('metadata',{}).get('kernelspec',{})
 
-    kernelspec['display_name'] = 'Python {:d}'.format(python_version)
-    kernelspec['name'] = 'python{:d}'.format(python_version)
-    kernelspec['language'] = 'python'
+    if kernelsepc:
+        kernelspec['display_name'] = 'Python {:d}'.format(python_version)
+        kernelspec['name'] = 'python{:d}'.format(python_version)
+        kernelspec['language'] = 'python'
+
+    return nb
+
+def no_kernelspec(nb):
+    kernelspec = nb.get('metadata',{}).get('kernelspec',{})
+    if kernelspec:
+        del nb['metadata']['kernelspec']
+
 
     return nb
 
@@ -317,6 +326,8 @@ def main():
         defaults to .git/info/attributes""")
     parser.add_argument('--set-kernel-version', default=None, type=int,
                         help='Set the Python version in the kernelsepc metadata')
+    parser.add_argument('--no-kernelspec', action='store_true',
+                        help='Remove the kernelsepc metadata')
     task.add_argument('--version', action='store_true',
                       help='Print version')
     parser.add_argument('--force', '-f', action='store_true',
@@ -347,8 +358,12 @@ def main():
             with io.open(filename, 'r', encoding='utf8') as f:
                 nb = read(f, as_version=NO_CONVERT)
             nb = strip_output(nb, args.keep_output, args.keep_count)
-            if args.set_kernel_version:
+
+            if args.no_kernelspec:
+                nb = no_kernelspec(nb)
+            elif args.set_kernel_version:
                 nb = set_kernelspec(nb, args.set_kernel_version)
+
             if args.textconv:
                 write(nb, output_stream)
             else:
