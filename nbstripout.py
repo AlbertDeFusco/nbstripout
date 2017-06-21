@@ -216,10 +216,9 @@ def install(attrfile=None):
     except CalledProcessError:
         print('Installation failed: not a git repository!', file=sys.stderr)
         sys.exit(1)
-    check_call(['git', 'config', 'filter.nbstripout.clean', '"%s" "%s" "%s"' %
+    check_call(['git', 'config', 'filter.nbstripout.clean', '"%s" "%s"' %
                (sys.executable.replace('\\', '/'),
-                path.abspath(__file__).replace('\\', '/'),
-                '--no-kernelspec' )])
+                path.abspath(__file__).replace('\\', '/'))])
     check_call(['git', 'config', 'filter.nbstripout.smudge', 'cat'])
     check_call(['git', 'config', 'filter.nbstripout.required', 'true'])
     check_call(['git', 'config', 'diff.ipynb.textconv', 'nbstripout -t'])
@@ -326,8 +325,6 @@ def main():
         defaults to .git/info/attributes""")
     parser.add_argument('--set-kernel-version', default=None, type=int,
                         help='Set the Python version in the kernelspec metadata')
-    parser.add_argument('--no-kernelspec', action='store_true',
-                        help='Remove the kernelspec metadata')
     task.add_argument('--version', action='store_true',
                       help='Print version')
     parser.add_argument('--force', '-f', action='store_true',
@@ -359,10 +356,10 @@ def main():
                 nb = read(f, as_version=NO_CONVERT)
             nb = strip_output(nb, args.keep_output, args.keep_count)
 
-            if args.no_kernelspec:
-                nb = no_kernelspec(nb)
-            elif args.set_kernel_version:
+            if args.set_kernel_version:
                 nb = set_kernelspec(nb, args.set_kernel_version)
+            else:
+                nb = no_kernelspec(nb)
 
             if args.textconv:
                 write(nb, output_stream)
