@@ -323,6 +323,8 @@ def main():
         defaults to .git/info/attributes""")
     parser.add_argument('--set-kernel-version', default=None, type=int,
                         help='Set the Python version in the kernelspec metadata')
+    parser.add_argument('--keep-kernelspec', action='store_true',
+                        help='Do not strip kernelspec')
     task.add_argument('--version', action='store_true',
                       help='Print version')
     parser.add_argument('--force', '-f', action='store_true',
@@ -357,6 +359,8 @@ def main():
 
             if args.set_kernel_version:
                 nb = set_kernelspec(nb, args.set_kernel_version)
+            elif args.keep_kernelspec:
+                pass
             else:
                 nb = no_kernelspec(nb)
 
