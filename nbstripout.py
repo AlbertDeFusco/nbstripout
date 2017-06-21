@@ -207,12 +207,13 @@ def install(attrfile=None):
     except CalledProcessError:
         print('Installation failed: not a git repository!', file=sys.stderr)
         sys.exit(1)
-    check_call(['git', 'config', 'filter.nbstripout.clean', '"%s" "%s"' %
+    check_call(['git', 'config', 'filter.nbstripout.clean', '"%s" "%s" "%s"' %
                (sys.executable.replace('\\', '/'),
-                path.abspath(__file__).replace('\\', '/'))])
+                path.abspath(__file__).replace('\\', '/'),
+                '--set-kernel-version=3' )])
     check_call(['git', 'config', 'filter.nbstripout.smudge', 'cat'])
     check_call(['git', 'config', 'filter.nbstripout.required', 'true'])
-    check_call(['git', 'config', 'diff.ipynb.textconv', 'nbstripout -t'])
+    #check_call(['git', 'config', 'diff.ipynb.textconv', 'nbstripout -t'])
 
     if not attrfile:
         attrfile = path.join(git_dir.decode(), 'info', 'attributes')
@@ -224,15 +225,15 @@ def install(attrfile=None):
         with open(attrfile, 'r') as f:
             attrs = f.read()
         filt_exists = '*.ipynb filter' in attrs
-        diff_exists = '*.ipynb diff' in attrs
+        #diff_exists = '*.ipynb diff' in attrs
         if filt_exists and diff_exists:
             return
 
     with open(attrfile, 'a') as f:
         if not filt_exists:
             print(('\n' if f.tell() else '') + '*.ipynb filter=nbstripout', file=f)
-        if not diff_exists:
-            print(('\n' if f.tell() else '') + '*.ipynb diff=ipynb', file=f)
+        #if not diff_exists:
+        #    print(('\n' if f.tell() else '') + '*.ipynb diff=ipynb', file=f)
 
 
 def uninstall(attrfile=None):
