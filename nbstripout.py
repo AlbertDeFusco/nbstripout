@@ -199,10 +199,8 @@ def set_kernelspec(nb, python_version=3):
     return nb
 
 def no_kernelspec(nb):
-    kernelspec = nb.get('metadata',{}).get('kernelspec',{})
-    if kernelspec:
-        del nb['metadata']['kernelspec']
-
+    if 'kernelspec' in nb['metadata']:
+        k = nb['metadata'].pop('kernelspec',None)
 
     return nb
 
@@ -354,6 +352,7 @@ def main():
         try:
             with io.open(filename, 'r', encoding='utf8') as f:
                 nb = read(f, as_version=NO_CONVERT)
+
             nb = strip_output(nb, args.keep_output, args.keep_count)
 
             if args.set_kernel_version:
