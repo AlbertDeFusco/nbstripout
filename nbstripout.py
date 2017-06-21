@@ -191,7 +191,7 @@ def strip_output(nb, keep_output, keep_count):
 def set_kernelspec(nb, python_version=3):
     kernelspec = nb.get('metadata',{}).get('kernelspec',{})
 
-    if kernelsepc:
+    if kernelspec:
         kernelspec['display_name'] = 'Python {:d}'.format(python_version)
         kernelspec['name'] = 'python{:d}'.format(python_version)
         kernelspec['language'] = 'python'
