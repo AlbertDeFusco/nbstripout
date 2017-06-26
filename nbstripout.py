@@ -103,7 +103,7 @@ else:
     input_stream = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
     output_stream = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-__version__ = '0.3.0'
+__version__ = '0.3.8'
 
 try:
     # Jupyter >= 4
@@ -198,8 +198,14 @@ def set_kernelspec(nb, python_version=3):
 
     return nb
 
-def no_kernelspec(nb):
-    nb['metadata'].pop('kernelspec',None)
+
+def clean_metadata(nb):
+    nb['metadata'] = {
+            'language_info':{
+                "name":"python",
+                "pygments_lexer": "ipython3"
+                }
+            }
 
     return nb
 
@@ -361,7 +367,7 @@ def main():
             elif args.keep_kernelspec:
                 pass
             else:
-                nb = no_kernelspec(nb)
+                nb = clean_metadata(nb)
 
             if args.textconv:
                 write(nb, output_stream)
@@ -382,7 +388,7 @@ def main():
         elif args.keep_kernelspec:
             pass
         else:
-            nb = no_kernelspec(nb)
+            nb = clean_metadata(nb)
 
         write(nb, output_stream)
 
