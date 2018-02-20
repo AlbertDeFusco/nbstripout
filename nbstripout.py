@@ -188,13 +188,28 @@ def strip_output(nb, keep_output, keep_count):
     return nb
 
 
-def set_kernelspec(nb, python_version=3):
+def set_kernelspec(nb, python_version=None, conda_env=None):
     kernelspec = nb.get('metadata',{}).get('kernelspec',{})
 
+    k = {}
+    if python_version:
+        k['display_name'] = 'Python {:d}'.format(python_version)
+        k['name'] = 'python{:d}'.format(python_version)
+        k['language'] = 'python'
+    elif conda_env:
+        if conda_env == 'default':
+            k['display_name'] = 'Python [{:s}]'.format(conda_env)
+            k['name'] = 'python3'
+            k['language'] = 'python'
+        else:
+            k['display_name'] = 'Python [conda env:{:s}]'.format(conda_env)
+            k['name'] = 'conda-env-{:s}-py'.format(conda_env)
+            k['language'] = 'python'
+
     if kernelspec:
-        kernelspec['display_name'] = 'Python {:d}'.format(python_version)
-        kernelspec['name'] = 'python{:d}'.format(python_version)
-        kernelspec['language'] = 'python'
+        kernelspec.update(k)
+    else:
+        nb['metadata']['kernelspec'] = k
 
     return nb
 
@@ -328,6 +343,8 @@ def main():
         defaults to .git/info/attributes""")
     parser.add_argument('--set-kernel-version', default=None, type=int,
                         help='Set the Python version in the kernelspec metadata')
+    parser.add_argument('--set-conda-env', default=None, type=str,
+                        help='Set the conda env in the kernelspec metadata')
     parser.add_argument('--keep-kernelspec', action='store_true',
                         help='Do not strip kernelspec')
     task.add_argument('--version', action='store_true',
@@ -362,8 +379,10 @@ def main():
 
             nb = strip_output(nb, args.keep_output, args.keep_count)
 
-            if args.set_kernel_version:
-                nb = set_kernelspec(nb, args.set_kernel_version)
+            if args.set_conda_env:
+                nb = set_kernelspec(nb, conda_env=args.set_conda_env)
+            elif args.set_kernel_version:
+                nb = set_kernelspec(nb, python_version=args.set_kernel_version)
             elif args.keep_kernelspec:
                 pass
             else:
@@ -383,8 +402,10 @@ def main():
         nb = strip_output(read(input_stream, as_version=NO_CONVERT),
                           args.keep_output, args.keep_count)
 
-        if args.set_kernel_version:
-            nb = set_kernelspec(nb, args.set_kernel_version)
+        if args.set_conda_env:
+            nb = set_kernelspec(nb, conda_env=args.set_conda_env)
+        elif args.set_kernel_version:
+            nb = set_kernelspec(nb, python_version=args.set_kernel_version)
         elif args.keep_kernelspec:
             pass
         else:
