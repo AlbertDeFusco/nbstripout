@@ -103,7 +103,7 @@ else:
     input_stream = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
     output_stream = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-__version__ = '0.3.8'
+__version__ = '0.3.10'
 
 try:
     # Jupyter >= 4
@@ -188,11 +188,16 @@ def strip_output(nb, keep_output, keep_count):
     return nb
 
 
-def set_kernelspec(nb, python_version=None, conda_env=None):
+def set_kernelspec(nb, python_version=None, conda_env=None, project_env=None):
     kernelspec = nb.get('metadata',{}).get('kernelspec',{})
 
     k = {}
-    if python_version:
+    if project_env and python_version:
+        python_version = int(python_version)
+        k['display_name'] = '[{:s}] Python {:d}'.format(project_env, python_version)
+        k['name'] = 'anaconda-project-{:s}-python{:d}'.format(project_env, python_version)
+        k['language'] = 'python'
+    elif python_version:
         k['display_name'] = 'Python {:d}'.format(python_version)
         k['name'] = 'python{:d}'.format(python_version)
         k['language'] = 'python'
@@ -205,6 +210,7 @@ def set_kernelspec(nb, python_version=None, conda_env=None):
             k['display_name'] = 'Python [conda env:{:s}]'.format(conda_env)
             k['name'] = 'conda-env-{:s}-py'.format(conda_env)
             k['language'] = 'python'
+
 
     if kernelspec:
         kernelspec.update(k)
@@ -341,10 +347,14 @@ def main():
     parser.add_argument('--attributes', metavar='FILEPATH', help="""Attributes
         file to add the filter to (in combination with --install/--uninstall),
         defaults to .git/info/attributes""")
+
     parser.add_argument('--set-kernel-version', default=None, type=int,
                         help='Set the Python version in the kernelspec metadata')
     parser.add_argument('--set-conda-env', default=None, type=str,
                         help='Set the conda env in the kernelspec metadata')
+    parser.add_argument('--set-project-env', default=None, type=str, nargs=2,
+                        help='Set the Anaconda Project env and Python version in the kernelspec metadata')
+
     parser.add_argument('--keep-kernelspec', action='store_true',
                         help='Do not strip kernelspec')
     task.add_argument('--version', action='store_true',
@@ -381,6 +391,8 @@ def main():
 
             if args.set_conda_env:
                 nb = set_kernelspec(nb, conda_env=args.set_conda_env)
+            elif args.set_project_env:
+                nb = set_kernelspec(nb, python_version=args.set_project_env[1], project_env=args.set_project_env[0])
             elif args.set_kernel_version:
                 nb = set_kernelspec(nb, python_version=args.set_kernel_version)
             elif args.keep_kernelspec:
@@ -404,6 +416,8 @@ def main():
 
         if args.set_conda_env:
             nb = set_kernelspec(nb, conda_env=args.set_conda_env)
+        elif args.set_project_env:
+            nb = set_kernelspec(nb, python_version=args.set_project_env[1], project_env=args.set_project_env[0])
         elif args.set_kernel_version:
             nb = set_kernelspec(nb, python_version=args.set_kernel_version)
         elif args.keep_kernelspec:
